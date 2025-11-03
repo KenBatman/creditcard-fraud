@@ -15,9 +15,9 @@ from data import (
 )
 st.set_option('client.showErrorDetails', True)
 @st.cache_resource(show_spinner=False)
-def get_models():
+def get_models(df=None):
     """Huấn luyện hoặc load models đã tồn tại."""
-    return train_and_save_models()
+    return train_and_save_models(df=df)
 
 # ======= PAGE CONFIG =======
 st.set_page_config(page_title="Credit Card Fraud Detection", page_icon="💳", layout="wide")
@@ -47,8 +47,8 @@ if "view" not in st.session_state:
 
 nav = st.sidebar.radio(
     "🧭 Chọn màn hình:",
-    ["Overview", "Visualizations", "Train Models"],
-    index=["Overview", "Visualizations", "Train Models"].index(st.session_state["view"])
+    ["Overview", "Visualizations", "Train Models", "User Prediction"],
+    index=["Overview", "Visualizations", "Train Models", "User Prediction"].index(st.session_state["view"])
 )
 st.session_state["view"] = nav
 
@@ -130,7 +130,7 @@ else:
         # Nút train / load model
         if st.button("🚀 Bắt đầu huấn luyện hoặc tải model"):
             with st.spinner("⏳ Đang xử lý... (lần đầu có thể hơi lâu)"):
-                results = get_models()  # Cache + kiểm tra .pkl tự động
+                results = get_models(df=st.session_state.get("df"))  # Cache + kiểm tra .pkl tự động
             st.success("✅ Hoàn tất! Models đã sẵn sàng sử dụng.")
 
             # Hiển thị kết quả chi tiết cho từng model
@@ -163,3 +163,52 @@ else:
                 st.pyplot(fig, clear_figure=True)
                 plt.close(fig)
             st.markdown("---")
+        # ============ TAB 4: USER PREDICTION ============
+    elif nav == "User Prediction":
+        st.subheader("🧾 Dự đoán giao dịch mới")
+
+        st.markdown("""
+        Nhập giá trị cho các đặc trưng **V1–V28**, **Time** và **Amount** để hệ thống dự đoán xem
+        giao dịch có phải là **gian lận (Fraud)** hay không.
+        """)
+
+        # --- Chọn model ---
+        model_choice = st.selectbox("Chọn mô hình để dự đoán:", ["Logistic Regression", "XGBoost"])
+
+        # --- Form để tránh rerun liên tục ---
+        with st.form(key="prediction_form"):
+            st.markdown("### ✏️ Nhập dữ liệu đầu vào")
+            col1, col2 = st.columns(2)
+            with col1:
+                time_input = st.number_input("⏱️ Time", value=0.0)
+            with col2:
+                amount_input = st.number_input("💰 Amount", value=0.0)
+
+            st.markdown("#### 🔢 Các đặc trưng V1 - V28")
+            v_inputs = {}
+            for i in range(1, 29):
+                v_inputs[f"V{i}"] = st.number_input(f"V{i}", value=0.0, step=0.01)
+
+            # Nút submit trong form
+            submitted = st.form_submit_button("🚀 Dự đoán giao dịch")
+
+        # Chỉ xử lý khi submit
+        if submitted:
+            # Tạo input_data từ các inputs
+            input_data = {"Time": time_input, "Amount": amount_input}
+            input_data.update(v_inputs)
+
+            try:
+                from models import user_predict  # hàm này bạn đã viết ở model.py
+                with st.spinner("⏳ Đang xử lý dữ liệu..."):
+                    prediction, probability = user_predict(input_data, model_name=model_choice)
+
+                st.markdown("---")
+                if prediction == 1:
+                    st.error(f"🚨 Giao dịch có khả năng **GIAN LẬN** (xác suất: {probability:.2%})")
+                else:
+                    st.success(f"✅ Giao dịch **BÌNH THƯỜNG** (xác suất gian lận: {probability:.2%})")
+
+            except Exception as e:
+                st.error(f"❌ Lỗi khi dự đoán: {e}")
+        
