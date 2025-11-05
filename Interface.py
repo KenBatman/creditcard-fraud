@@ -20,7 +20,7 @@ def get_models(df=None):
     return train_and_save_models(df=df)
 
 # ======= PAGE CONFIG =======
-st.set_page_config(page_title="Credit Card Fraud Detection", page_icon="💳", layout="wide")
+st.set_page_config(page_title="Ken's Credit Card Fraud Detection", page_icon="💳", layout="wide")
 
 st.title("💳 Credit Card Fraud Detection Dashboard")
 
