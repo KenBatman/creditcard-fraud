@@ -1,7 +1,7 @@
 # 💳 Credit Card Fraud Detection
 
 An interactive machine learning web application for detecting fraudulent credit card transactions.  
-Built with **Python**, **Streamlit**, **scikit-learn**, and **XGBoost**, then deployed on **Streamlit Cloud**.
+Built with **Python**, **Streamlit**
 
 ---
 
@@ -33,7 +33,7 @@ streamlit run Interface.py
 creditcard-fraud-detection/
 │
 ├── Data/
-│ └── sample_creditcard.csv
+│ └── creditcard.csv
 │
 ├── models/
 │ ├── logistic_regression.pkl
