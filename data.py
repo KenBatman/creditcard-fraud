@@ -3,14 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.figure_factory as ff
-import streamlit as st  # Để render plots
+import streamlit as st 
 
 def load_data(file_path):
-    """
-    Load CSV file — hỗ trợ cả file local và file upload từ Streamlit.
-    Trả về: df (DataFrame) và info (thông tin thống kê, duplicates, missing, outliers, constant cols)
-    """
-    # ✅ Đọc file linh hoạt: hỗ trợ cả file upload và đường dẫn local
+    """Load data từ file_path (có thể là đường dẫn hoặc file upload)."""
     if hasattr(file_path, "read"):  # Nếu là file được upload qua Streamlit
         df = pd.read_csv(file_path)
     else:  # Nếu là đường dẫn file local
@@ -19,7 +15,6 @@ def load_data(file_path):
     # Basic info
     shape_original = df.shape
     
-    # Set target column & numeric columns
     tar_col = "Class"
     num_cols = df.select_dtypes(include=['number']).columns.tolist()
     num_cols = [col for col in num_cols if col != tar_col]
