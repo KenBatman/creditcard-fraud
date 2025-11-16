@@ -287,5 +287,5 @@ else:
                 except Exception as e:
                     st.error(f"❌ Lỗi khi dự đoán: {e}")
         
-        # Gọi hàm tách (gọn gàng!)
+        # Gọi hàm tách 
         user_prediction_ui(df)
